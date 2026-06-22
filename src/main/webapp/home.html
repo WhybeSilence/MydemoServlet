@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>解忧小铺</title>
+    <!-- 引入CSS -->
+    <link rel="stylesheet" href="css/home.css">
+    <style>
+        /* 启用全局平滑滚动效果 */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 为各个板块增加间距，方便演示跳转效果 */
+        .section-block {
+            min-height: 60vh; /* 每个板块至少占屏幕高度的60% */
+            padding-top: 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            padding-left: 15px;
+            border-left: 5px solid #ff9f43;
+            color: inherit;
+        }
+
+        /* 简单的占位内容样式 */
+        .placeholder-text {
+            opacity: 0.7;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+<!-- 顶部横幅 -->
+<header class="banner">
+    <!-- 左上角改为 登录/注册 -->
+    <button class="login-btn">☰ 登录 / 注册</button>
+    <!-- 日间黑夜切换开关 -->
+    <label class="mode-switch">
+        <input type="checkbox" id="modeToggle">
+        <span class="slider"></span>
+    </label>
+    <div class="banner-content">
+        <h1>解忧小铺</h1>
+        <p class="meta">© 2024-10-10 &nbsp;|&nbsp; 记录心情，寄存烦恼</p>
+        <button class="banner-btn" onclick="location.href='#articles'">开始阅读</button>
+    </div>
+</header>
+
+<!-- 左侧导航卡片 -->
+<aside class="sidebar">
+    <div class="sidebar-card">
+        <h3>目录</h3>
+        <ul>
+            <li><a href="#home">首页</a></li>
+            <li><a href="#articles">文章列表</a></li>
+            <li><a href="#diary">心情日记</a></li>
+            <!-- 修改点：这里改为跳转到 personal.html -->
+            <li><a href="personal.html">关于我</a></li>
+        </ul>
+    </div>
+</aside>
+
+
+<!-- 中间主内容区 -->
+<main class="content">
+    <div class="full-bg-layer">
+        <div class="content-inner">
+
+            <!-- 首页锚点 (作为页面顶部标记) -->
+            <div id="home" style="height: 0;"></div>
+
+            <!-- 店铺卡片展示区 (属于首页内容) -->
+            <div class="article-card" onclick="location.href='shopDetail.html'">
+                <div class="card-text">
+                    <h2>清风解忧小店</h2>
+                    <p class="shop-desc">主营情绪疏导、暖心好物，陪伴每一位疲惫的旅人。</p>
+                    <p class="shop-slogan">心有暖阳，何惧风霜</p>
+                </div>
+                <button class="collect-btn">☆ 收藏</button>
+                <div class="card-img">
+                    <img src="https://picsum.photos/200/150?random=1" alt="店铺预览图">
+                </div>
+            </div>
+
+            <div class="article-card" onclick="location.href='shopDetail.html'">
+                <div class="card-text">
+                    <h2>晚风杂货小铺</h2>
+                    <p class="shop-desc">收集人间温柔，贩卖片刻安宁，在这里放下所有烦恼。</p>
+                    <p class="shop-slogan">慢下来，感受生活</p>
+                </div>
+                <button class="collect-btn">☆ 收藏</button>
+                <div class="card-img">
+                    <img src="https://picsum.photos/200/150?random=2" alt="店铺预览图">
+                </div>
+            </div>
+
+            <!-- ================= 新增板块区域 ================= -->
+
+            <!-- 文章列表板块 -->
+            <div id="articles" class="section-block">
+                <h2 class="section-title">文章列表</h2>
+                <div class="placeholder-text">这里是精选的文章列表区域...</div>
+                <div class="placeholder-text">你可以在这里展示更多的文字内容或博客摘要。</div>
+                <div class="placeholder-text">点击左侧导航栏可以快速回到这里。</div>
+            </div>
+
+            <!-- 心情日记板块 -->
+            <div id="diary" class="section-block">
+                <h2 class="section-title">心情日记</h2>
+                <div class="placeholder-text">记录生活的点点滴滴...</div>
+                <div class="placeholder-text">今天天气不错，适合发呆。</div>
+                <div class="placeholder-text">在这个板块，你可以写下自己的心事。</div>
+            </div>
+
+            <!-- 注意：已删除原本的 "关于我" 板块，因为现在它指向 external link -->
+
+        </div>
+    </div>
+</main>
+
+
+<!-- 右侧用户面板 + 折叠标识 << -->
+<div class="user-panel" id="userPanel">
+    <!-- 折叠标签 -->
+    <div class="fold-tag"><<</div>
+    <div class="panel-content">
+        <div class="user-avatar">
+            <img src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
+        </div>
+        <h3>解忧店主</h3>
+        <ul class="user-info">
+            <li>身份：店主</li>
+            <li>状态：营业中</li>
+            <li>心情：晴</li>
+            <li>访客：2435</li>
+            <li>留言：0</li>
+        </ul>
+    </div>
+</div>
+
+
+<!-- 登录弹窗遮罩层 -->
+<div class="modal-mask" id="loginModal">
+    <div class="modal-box">
+        <h2>登录 / 注册</h2>
+        <!-- 切换标签 -->
+        <div class="modal-tab">
+            <span class="tab-item active" data-tab="login">登录</span>
+            <span class="tab-item" data-tab="register">注册</span>
+        </div>
+
+        <!-- 登录表单 (添加了 id 和 name) -->
+        <div class="form-box login-form">
+            <div class="input-item">
+                <label>账号</label>
+                <!-- name="username" 对应后端 request.getParameter("username") -->
+                <input type="text" id="loginUsername" name="username" placeholder="请输入账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <!-- name="password" 对应后端 request.getParameter("password") -->
+                <input type="password" id="loginPassword" name="password" placeholder="请输入密码">
+            </div>
+            <!-- 给按钮添加 id，方便 JS 绑定点击事件 -->
+            <button class="submit-btn" id="loginSubmitBtn">登录</button>
+        </div>
+
+        <!-- 注册表单 (添加了 id 和 name) -->
+        <div class="form-box register-form" style="display: none;">
+            <div class="input-item">
+                <label>账号</label>
+                <input type="text" id="regUsername" name="username" placeholder="请设置账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <input type="password" id="regPassword" name="password" placeholder="请设置密码">
+            </div>
+            <div class="input-item">
+                <label>确认密码</label>
+                <input type="password" id="regConfirmPwd" placeholder="再次输入密码">
+            </div>
+            <!-- 给按钮添加 id -->
+            <button class="submit-btn" id="registerSubmitBtn">注册</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/home.js"></script>
+</body>
+</html>

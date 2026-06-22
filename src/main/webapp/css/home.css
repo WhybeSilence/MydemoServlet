@@ -1,0 +1,427 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Microsoft Yahei", sans-serif;
+    transition: all 0.3s ease;
+}
+
+/* 日间/黑夜模式变量 */
+:root {
+    --bg-light: #f8f5e6;
+    --bg-dark: #1a1a2e;
+    --sidebar-light: #fff;
+    --sidebar-dark: #16213e;
+    --card-light: #fff;
+    --card-dark: #16213e;
+    --text-light: #333;
+    --text-dark: #eee;
+    --layer-light: rgba(255,255,255,0.7);
+    --layer-dark: rgba(30,30,50,0.7);
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-light);
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+body.dark {
+    background-color: var(--bg-dark);
+    color: var(--text-dark);
+}
+
+/* ========== 顶部横幅（本地透明PNG藤蔓图） ========== */
+.banner {
+    width: 100%;
+    height: 400px;
+    /* 开启平铺，水平循环、垂直不重复 */
+    background: url('../images/vine.png') repeat-x center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: white;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+
+/* 左上角：登录/注册 按钮 */
+.login-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    /*background: transparent;*/
+    background-color: var(--layer-dark);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.login-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+/* ========== 图标随滑块一起滑动的开关 ========== */
+.mode-switch {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: inline-block;
+    width: 70px;
+    height: 34px;
+}
+
+.mode-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: 0.4s ease;
+}
+
+/* 滑块：带太阳/月亮图标 */
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: #fff;
+    border-radius: 50%;
+    transition: 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* 白天：太阳 */
+input:not(:checked) + .slider::before {
+    content: "☀️";
+}
+/* 黑夜：月亮 */
+input:checked + .slider::before {
+    content: "🌙";
+    transform: translateX(36px);
+}
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+/* 隐藏旧图标 */
+.icon {
+    display: none;
+}
+
+.banner-content {
+    text-align: center;
+}
+.banner h1 {
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+.meta {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+.banner-btn {
+    padding: 10px 20px;
+    background: #ff9f43;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+}
+
+/* ========== 左侧导航卡片 ========== */
+.sidebar {
+    position: fixed;
+    top: 300px;
+    left: 0;
+    width: 200px;
+    height: calc(100vh - 300px);
+    padding: 20px;
+    z-index: 10;
+}
+.sidebar-card {
+    background-color: var(--sidebar-light);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    height: 100%;
+}
+body.dark .sidebar-card {
+    background-color: var(--sidebar-dark);
+}
+.sidebar-card h3 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+.sidebar-card ul {
+    list-style: none;
+}
+.sidebar-card li {
+    margin-bottom: 15px;
+}
+.sidebar-card a {
+    color: inherit;
+    text-decoration: none;
+    opacity: 0.8;
+}
+.sidebar-card a:hover {
+    opacity: 1;
+    color: #ff9f43;
+}
+
+/* ========== 主内容区 + 全屏半透明铺垫 ========== */
+.content {
+    margin-top: 20px;
+}
+.full-bg-layer {
+    width: 100vw;
+    background-color: var(--layer-light);
+    padding: 30px 0;
+}
+body.dark .full-bg-layer {
+    background-color: var(--layer-dark);
+}
+.content-inner {
+    margin-left: 220px;
+    max-width: 900px;
+    padding: 0 30px;
+}
+
+/* 文章卡片 */
+.article-card {
+    background-color: var(--card-light);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+body.dark .article-card {
+    background-color: var(--card-dark);
+}
+.card-text {
+    flex: 1;
+    margin-right: 20px;
+}
+.card-text h2 {
+    margin-bottom: 10px;
+    color: inherit;
+    font-size: 20px;
+}
+.card-text p {
+    line-height: 1.6;
+    opacity: 0.9;
+}
+.card-img img {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* ========== 右侧用户面板 + 折叠标签 << ========== */
+.user-panel {
+    position: fixed;
+    top: 0;
+    right: -250px;
+    width: 250px;
+    height: 100vh;
+    background: var(--sidebar-light);
+    box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+    transition: right 0.4s ease;
+    z-index: 99;
+    padding: 30px 20px;
+}
+body.dark .user-panel {
+    background: var(--sidebar-dark);
+}
+.user-panel.show {
+    right: 0;
+}
+
+/* 右侧折叠标识 << */
+.fold-tag {
+    position: absolute;
+    left: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 25px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.6);
+    color: #656565;
+    text-align: center;
+    line-height: 60px;
+    border-radius: 6px 0 0 6px;
+    font-size: 18px;
+}
+
+.panel-content {
+    text-align: center;
+}
+.user-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+.panel-content h3 {
+    margin-bottom: 20px;
+}
+.user-info {
+    list-style: none;
+    text-align: left;
+}
+.user-info li {
+    margin-bottom: 10px;
+    opacity: 0.9;
+}
+
+
+/* 店铺卡片 - 基础布局 */
+.article-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    cursor: pointer;
+}
+
+/* 收藏按钮样式 */
+.collect-btn {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    /* 阻止点击冒泡，不触发卡片跳转 */
+    pointer-events: auto;
+}
+
+/* 未收藏：灰色 ☆ 收藏 */
+.collect-btn {
+    color: #999;
+}
+
+/* 已收藏：黄色 ★ 已收藏 */
+.collect-btn.collected {
+    color: #ffd700;
+}
+
+/* 店铺文本样式 */
+.card-text {
+    flex: 1;
+}
+.shop-desc {
+    margin: 8px 0;
+    font-size: 15px;
+}
+.shop-slogan {
+    font-style: italic;
+    color: #888;
+    font-size: 14px;
+}
+body.dark .shop-slogan {
+    color: #bbb;
+}
+
+
+
+/* 登录弹窗遮罩 */
+.modal-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+/* 弹窗盒子 */
+.modal-box {
+    width: 360px;
+    background: var(--card-light);
+    border-radius: 10px;
+    padding: 30px;
+}
+body.dark .modal-box {
+    background: var(--card-dark);
+}
+.modal-box h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+/* 登录/注册切换标签 */
+.modal-tab {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(128,128,128,0.2);
+}
+.tab-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.tab-item.active {
+    opacity: 1;
+    border-bottom: 2px solid #ff9f43;
+}
+/* 输入框 */
+.input-item {
+    margin-bottom: 16px;
+}
+.input-item label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+.input-item input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+}
+body.dark .input-item input {
+    border-color: #444;
+}
+/* 提交按钮 */
+.submit-btn {
+    width: 100%;
+    padding: 10px;
+    background: #ff9f43;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}

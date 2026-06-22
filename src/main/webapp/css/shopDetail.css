@@ -1,0 +1,147 @@
+/* 店铺信息卡片 */
+.shop-info-card {
+    background-color: var(--card-light);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+body.dark .shop-info-card {
+    background-color: var(--card-dark);
+}
+.shop-info-card h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+.shop-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #52c41a;
+    margin-bottom: 15px;
+}
+.shop-desc {
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+/* 商品列表标题 */
+.goods-title {
+    margin: 20px 0 10px 0;
+}
+
+/* 商品卡片整体布局 */
+.goods-card {
+    background-color: var(--card-light);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+body.dark .goods-card {
+    background-color: var(--card-dark);
+}
+
+/* 商品图片 */
+.goods-img img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+/* 商品文本区域 */
+.goods-text {
+    flex: 1;
+}
+.goods-text h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+.goods-desc {
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+.goods-price {
+    color: #f5222d;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.goods-limit {
+    font-size: 14px;
+    color: #888;
+}
+body.dark .goods-limit {
+    color: #bbb;
+}
+
+/* 按钮组 */
+.goods-btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.reserve-btn, .cart-btn {
+    width: 90px;
+    height: 36px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.reserve-btn {
+    background: #409eff;
+    color: #fff;
+}
+.cart-btn {
+    background: #ff7d00;
+    color: #fff;
+}
+/* 按钮已点击状态 */
+.reserve-btn.reserved {
+    background: #909399;
+    cursor: default;
+}
+.cart-btn.added {
+    background: #909399;
+    cursor: default;
+}
+
+/* 已售罄样式 */
+.goods-card.sold-out {
+    opacity: 0.7;
+}
+.sold-tag {
+    color: #f5222d;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+
+/* 营业状态切换按钮 */
+.shop-switch-btn {
+    margin-left: 15px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    background: #ff7d00;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* 店铺整体打烊：所有商品按钮禁用、置灰 */
+body.shop-close .goods-btn-group .reserve-btn,
+body.shop-close .goods-btn-group .cart-btn {
+    background: #909399 !important;
+    cursor: not-allowed !important;
+    pointer-events: none !important;
+    opacity: 0.7;
+}

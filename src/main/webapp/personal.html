@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - 解忧小铺</title>
+    <link rel="stylesheet" href="./css/home.css">
+    <style>
+        /* 个人主页专属样式 */
+        /* 用户信息头部卡片 */
+        .user-info-card {
+            background-color: var(--card-light);
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        body.dark .user-info-card {
+            background-color: var(--card-dark);
+        }
+        .user-main-avatar img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .user-text-info h2 {
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+        .user-text-info p {
+            line-height: 1.8;
+            opacity: 0.9;
+            margin: 6px 0;
+        }
+
+        /* 模块通用卡片 */
+        .module-card {
+            background-color: var(--card-light);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        body.dark .module-card {
+            background-color: var(--card-dark);
+        }
+        .module-card h3 {
+            font-size: 20px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(128,128,128,0.2);
+            padding-bottom: 8px;
+        }
+        .item-list li {
+            list-style: none;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+            display: flex;
+            justify-content: space-between;
+        }
+        .item-list li:last-child {
+            border-bottom: none;
+        }
+        .item-tag {
+            font-size: 13px;
+            padding: 2px 8px;
+            border-radius: 3px;
+        }
+        .tag-wish {
+            background: #ffeaa7;
+            color: #333;
+        }
+        .tag-cart {
+            background: #74b9ff;
+            color: #fff;
+        }
+        .tag-dynamic {
+            background: #fd79a8;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<!-- 顶部横幅 -->
+<header class="banner">
+    <button class="login-btn">☰ 登录 / 注册</button>
+    <!-- 日夜切换开关 -->
+    <label class="mode-switch">
+        <input type="checkbox" id="modeToggle">
+        <span class="slider"></span>
+    </label>
+    <div class="banner-content">
+        <h1>个人主页</h1>
+        <p class="meta">我的专属空间</p>
+        <button class="banner-btn" onclick="location.href='home.html'">返回首页</button>
+    </div>
+</header>
+
+<!-- 左侧固定导航栏 -->
+<aside class="sidebar">
+    <div class="sidebar-card">
+        <h3>目录</h3>
+        <ul>
+            <li><a href="home.html">首页店铺列表</a></li>
+            <li><a href="#userInfo">个人信息</a></li>
+            <li><a href="#wish">愿望清单</a></li>
+            <li><a href="#cart">我的购物车</a></li>
+            <li><a href="#dynamic">动态</a></li>
+        </ul>
+    </div>
+</aside>
+
+<!-- 主内容区域 -->
+<main class="content">
+    <div class="full-bg-layer">
+        <div class="content-inner">
+            <!-- 1、顶部用户信息卡片 -->
+            <div id="userInfo" class="user-info-card">
+                <div class="user-main-avatar">
+                    <img src="https://picsum.photos/120/120?random=userMain" alt="个人头像">
+                </div>
+                <div class="user-text-info">
+                    <h2>解忧店主</h2>
+                    <p>签名：愿世间烦恼皆有归处，温柔常驻心间</p>
+                    <p>注册时间：2024-10-10</p>
+                    <p>收藏店铺：3 家 | 购物车商品：4 件 | 发布动态：6 条</p>
+                </div>
+            </div>
+
+            <!-- 2、愿望清单模块 -->
+            <div id="wish" class="module-card">
+                <h3>愿望清单</h3>
+                <ul class="item-list">
+                    <li>
+                        <span>治愈系星空香薰</span>
+                        <span class="item-tag tag-wish">待购入</span>
+                    </li>
+                    <li>
+                        <span>柔软云朵毛绒玩偶</span>
+                        <span class="item-tag tag-wish">待购入</span>
+                    </li>
+                    <li>
+                        <span>复古文艺手账本套装</span>
+                        <span class="item-tag tag-wish">已完成</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 3、我的购物车模块 -->
+            <div id="cart" class="module-card">
+                <h3>我的购物车</h3>
+                <ul class="item-list">
+                    <li>
+                        <span>解压小摆件 - 清风解忧小店</span>
+                        <span class="item-tag tag-cart">待结算</span>
+                    </li>
+                    <li>
+                        <span>暖心明信片礼盒 - 晚风杂货小铺</span>
+                        <span class="item-tag tag-cart">待结算</span>
+                    </li>
+                    <li>
+                        <span>睡眠舒缓香包 - 星辰治愈馆</span>
+                        <span class="item-tag tag-cart">已结算</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 4、动态模块 -->
+            <div id="dynamic" class="module-card">
+                <h3>我的动态</h3>
+                <ul class="item-list">
+                    <li>
+                        <span>今日收获一件超治愈的小礼物，心情满分！</span>
+                        <span class="item-tag tag-dynamic">2026-06-15</span>
+                    </li>
+                    <li>
+                        <span>收藏了晚风杂货小铺，店里的温柔氛围太戳我了</span>
+                        <span class="item-tag tag-dynamic">2026-06-12</span>
+                    </li>
+                    <li>
+                        <span>给自己添置了一本新手账，准备记录生活碎片</span>
+                        <span class="item-tag tag-dynamic">2026-06-08</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 右侧滑出用户面板 -->
+<div class="user-panel" id="userPanel">
+    <div class="fold-tag"><<</div>
+    <div class="panel-content">
+        <div class="user-avatar">
+            <img src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
+        </div>
+        <h3>解忧店主</h3>
+        <ul class="user-info">
+            <li>状态：营业中</li>
+            <li>心情：晴</li>
+            <li>访客：2435</li>
+            <li>留言：0</li>
+        </ul>
+    </div>
+</div>
+
+<script src="./js/home.js"></script>
+</body>
+</html>
