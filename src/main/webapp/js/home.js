@@ -44,12 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ================== 登录弹窗逻辑 ==================
-    const loginBtn = document.querySelector('.login-btn'); // 确保首页有 class="login-btn" 的元素
+    const loginBtn = document.getElementById('loginBtn');
+    const userInfoBar = document.getElementById('userInfoBar');
+    const welcomeText = document.getElementById('welcomeText');
+    const logoutBtn = document.getElementById('logoutBtn');
     const modalMask = document.getElementById('loginModal');
     const modalBox = document.querySelector('.modal-box');
     const tabItems = document.querySelectorAll('.tab-item');
     const loginForm = document.querySelector('.login-form');
     const registerForm = document.querySelector('.register-form');
+
+    // 检查登录状态
+    checkLoginStatus();
 
     if(loginBtn && modalMask){
         loginBtn.addEventListener('click', () => {
@@ -60,6 +66,47 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!modalBox.contains(e.target)) {
                 modalMask.style.display = 'none';
             }
+        });
+    }
+
+    // 退出登录
+    if(logoutBtn){
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/servletLogin/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                // 刷新页面显示未登录状态
+                window.location.reload();
+            } catch (error) {
+                console.error('退出登录失败:', error);
+                window.location.reload();
+            }
+        });
+    }
+
+    // 检查登录状态
+    function checkLoginStatus() {
+        fetch('/servletLogin/checkLogin', {
+            method: 'GET',
+            credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200 && data.username) {
+                // 已登录状态
+                loginBtn.style.display = 'none';
+                userInfoBar.style.display = 'flex';
+                welcomeText.innerText = `欢迎, ${data.username}`;
+            } else {
+                // 未登录状态
+                loginBtn.style.display = 'block';
+                userInfoBar.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('检查登录状态失败:', error);
         });
     }
 
@@ -118,32 +165,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // 发送请求到后端
                 const response = await fetch('/servletLogin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
                 });
 
-                // 尝试解析 JSON
                 const data = await response.json();
 
                 if (data.code === 200) {
-                    alert('登录成功！');
+                    alert(data.msg || '登录成功！');
                     modalMask.style.display = 'none';
-                    // 根据角色跳转
-                    if (data.role === 'admin') {
-                        location.href = 'admin_dashboard.html';
-                    } else {
-                        location.href = 'success.html';
-                    }
+                    // 刷新当前页面显示登录状态
+                    window.location.reload();
                 } else {
                     alert(data.msg || '登录失败');
                 }
 
             } catch (error) {
                 console.error('登录错误详情:', error);
-                alert('网络异常或服务器响应格式错误（请检查后端是否返回了JSON）');
+                alert('网络异常或服务器响应格式错误');
             }
         });
     }

@@ -47,12 +47,18 @@ body.dark {
 }
 
 
-/* 左上角：登录/注册 按钮 */
-.login-btn {
+/* 右上角容器 */
+.header-right {
     position: absolute;
     top: 20px;
-    left: 20px;
-    /*background: transparent;*/
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* 登录/注册 按钮 */
+.login-btn {
     background-color: var(--layer-dark);
     border: 1px solid rgba(255,255,255,0.5);
     color: white;
@@ -63,6 +69,35 @@ body.dark {
 }
 .login-btn:hover {
     background: rgba(255,255,255,0.2);
+}
+
+/* 用户信息栏 */
+.user-info-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--layer-dark);
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.user-info-bar span {
+    color: white;
+    font-size: 14px;
+}
+
+/* 退出按钮 */
+.logout-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+.logout-btn:hover {
+    background: rgba(255,255,255,0.3);
 }
 
 /* ========== 图标随滑块一起滑动的开关 ========== */

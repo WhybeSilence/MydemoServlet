@@ -39,13 +39,19 @@
 <body>
 <!-- 顶部横幅 -->
 <header class="banner">
-    <!-- 左上角改为 登录/注册 -->
-    <button class="login-btn">☰ 登录 / 注册</button>
     <!-- 日间黑夜切换开关 -->
     <label class="mode-switch">
         <input type="checkbox" id="modeToggle">
         <span class="slider"></span>
     </label>
+    <!-- 右上角：登录/注册 或 用户信息 -->
+    <div class="header-right">
+        <button class="login-btn" id="loginBtn">☰ 登录 / 注册</button>
+        <div class="user-info-bar" id="userInfoBar" style="display: none;">
+            <span id="welcomeText"></span>
+            <button class="logout-btn" id="logoutBtn">退出登录</button>
+        </div>
+    </div>
     <div class="banner-content">
         <h1>解忧小铺</h1>
         <p class="meta">© 2024-10-10 &nbsp;|&nbsp; 记录心情，寄存烦恼</p>

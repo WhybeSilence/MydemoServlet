@@ -18,11 +18,74 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-@WebServlet("/login")
+@WebServlet({"/login", "/checkLogin", "/logout"})
 public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String servletPath = request.getServletPath();
+        
+        if ("/logout".equals(servletPath)) {
+            handleLogout(request, response);
+            return;
+        }
+        
+        // 处理登录逻辑
+        handleLogin(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String servletPath = request.getServletPath();
+        
+        if ("/checkLogin".equals(servletPath)) {
+            handleCheckLogin(request, response);
+            return;
+        }
+        
+        // 默认跳转到登录页面
+        response.sendRedirect("login.html");
+    }
+
+    private void handleCheckLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            SysUser user = (SysUser) session.getAttribute("currentUser");
+            if (user != null) {
+                out.print("{\"code\": 200, \"username\": \"" + user.getUsername() + "\", \"role\": \"" + user.getUserRole() + "\"}");
+                return;
+            }
+        }
+        
+        out.print("{\"code\": 401, \"msg\": \"未登录\"}");
+    }
+
+    private void handleLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        
+        // 清除 cookies
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                response.addCookie(cookie);
+            }
+        }
+        
+        out.print("{\"code\": 200, \"msg\": \"退出成功\"}");
+    }
+
+    private void handleLogin(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         // 【关键】设置响应类型为 JSON
         response.setContentType("application/json;charset=UTF-8");
@@ -79,12 +142,6 @@ public class LoginServlet extends HttpServlet {
         } finally {
             DBUtil.close(conn, pstmt, rs);
         }
-    }
-
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // GET 请求通常用于页面跳转，这里保持原样或返回 JSON 提示
-        response.sendRedirect("login.html");
     }
 
     private void addCookie(HttpServletResponse resp, String name, String value, int maxAge) {
