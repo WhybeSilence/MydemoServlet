@@ -6,9 +6,9 @@ public class DBUtil {
 
     // 1. 数据库连接配置
     // 注意：将 "shopdemo" 对应你的数据库名，password 修改为你本地的MySQL密码
-    private static final String URL = "jdbc:mysql://localhost:3306/shopdemo?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "512179588"; // 这里填你真实的数据库密码
+    private static final String URL = "jdbc:mysql://192.168.56.1:3306/shopdemo?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC";
+    private static final String USER = "remote_user";
+    private static final String PASSWORD = "512179588";
 
     // 2. 静态代码块：加载驱动（只需执行一次）
     static {

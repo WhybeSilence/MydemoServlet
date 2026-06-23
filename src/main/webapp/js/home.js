@@ -1,5 +1,3 @@
-// ================== home.js 最终修复版 ==================
-
 // 等待页面所有元素加载完毕后再执行脚本，防止找不到 ID
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -118,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // 发送请求到后端
+                // 发送请求到后端 (更新为 /login)
                 const response = await fetch('/servletLogin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -130,13 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.code === 200) {
                     alert('登录成功！');
-                    modalMask.style.display = 'none';
-                    // 根据角色跳转
-                    if (data.role === 'admin') {
-                        location.href = 'admin_dashboard.html';
-                    } else {
-                        location.href = 'success.html';
-                    }
+                    modalMask.style.display = 'none'; // 关闭弹窗
+                    // 根据你的要求：登录成功后停留在当前页面（通过刷新页面来更新顶部的登录状态）
+                    location.reload();
                 } else {
                     alert(data.msg || '登录失败');
                 }
@@ -170,6 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
+                // 发送请求到后端 (更新为 /register)
                 const response = await fetch('/servletLogin/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

@@ -1,6 +1,5 @@
 package com.wang.servlet.controller;
 
-import com.wang.servlet.util.DBUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,13 +9,15 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 @WebServlet("/register")
 public class RegisterServlet extends HttpServlet {
+
+    // ================== 数据库连接信息（与 LoginServlet 保持一致） ==================
+    private static final String DB_URL = "jdbc:mysql://192.168.56.1:3306/shopdemo?useSSL=false&serverTimezone=UTC&characterEncoding=utf-8";
+    private static final String USER = "remote_user";
+    private static final String PASS = "512179588";
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -33,9 +34,11 @@ public class RegisterServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
 
         try {
-            conn = DBUtil.getConnection();
+            // 1. 加载驱动并获取数据库连接
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(DB_URL, USER, PASS);
 
-            // 1. 检查用户名是否存在
+            // 2. 检查用户名是否存在
             String checkSql = "SELECT user_id FROM sys_user WHERE username = ?";
             checkStmt = conn.prepareStatement(checkSql);
             checkStmt.setString(1, username);
@@ -46,7 +49,7 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            // 2. 插入新用户
+            // 3. 密码加密并插入新用户
             String encodedPwd = BCrypt.hashpw(password, BCrypt.gensalt());
             String insertSql = "INSERT INTO sys_user (username, password, user_role, create_time) VALUES (?, ?, 'user', NOW())";
             insertStmt = conn.prepareStatement(insertSql);
@@ -61,17 +64,21 @@ public class RegisterServlet extends HttpServlet {
                 out.print("{\"code\": 500, \"msg\": \"注册失败\"}");
             }
 
-        } catch (SQLException e) {
+        } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            out.print("{\"code\": 500, \"msg\": \"数据库操作异常\"}");
+            out.print("{\"code\": 500, \"msg\": \"数据库驱动加载失败\"}");
+        } catch (SQLException e) {
+            e.printStackTrace(); // 确保这行存在，并在控制台看日志
+//            out.print("{\"code\": 500, \"msg\": \"数据库操作异常\"}");
+            // 临时修改：将具体错误信息返回给前端，方便调试
+            out.print("{\"code\": 500, \"msg\": \"数据库异常: " + e.getMessage() + "\"}");
+
         } finally {
-            // 【修复】确保所有资源都被关闭
-            DBUtil.close(conn, checkStmt, rs);
-            try {
-                if (insertStmt != null) insertStmt.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            // 4. 手动关闭所有数据库资源
+            try { if (rs != null) rs.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (checkStmt != null) checkStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (insertStmt != null) insertStmt.close(); } catch (SQLException e) { e.printStackTrace(); }
+            try { if (conn != null) conn.close(); } catch (SQLException e) { e.printStackTrace(); }
         }
     }
 
