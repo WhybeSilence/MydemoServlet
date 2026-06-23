@@ -5,14 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店铺详情 - 解忧小铺</title>
     <link rel="stylesheet" href="./css/home.css">
-    <!-- 商品详情页专属样式 -->
     <link rel="stylesheet" href="./css/shopDetail.css">
+    <style>
+        .add-product-btn {
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: #52c41a;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .owner-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .owner-btn {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #fff;
+        }
+        .btn-edit { background: #409eff; }
+        .btn-remove { background: #f5222d; }
+
+        .modal-mask {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+        }
+        .modal-box {
+            width: 450px;
+            background: var(--card-light);
+            border-radius: 10px;
+            padding: 25px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        body.dark .modal-box { background: var(--card-dark); }
+        .modal-box h3 { margin-bottom: 15px; }
+        .form-item { margin-bottom: 12px; }
+        .form-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        .form-item input, .form-item textarea {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: transparent;
+            color: inherit;
+        }
+        body.dark .form-item input,
+        body.dark .form-item textarea { border-color: #444; }
+        .form-item textarea { min-height: 60px; resize: vertical; }
+        .modal-btn-group { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+        .modal-btn {
+            padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;
+        }
+        .modal-btn-cancel { background: #ccc; color: #333; }
+        .modal-btn-confirm { background: #52c41a; color: #fff; }
+    </style>
 </head>
 <body>
-<!-- 顶部横幅 -->
 <header class="banner">
-    <button class="login-btn">☰ 登录 / 注册</button>
-    <!-- 日夜切换开关 -->
+    <button class="login-btn" id="loginBtn">☰ 登录 / 注册</button>
     <label class="mode-switch">
         <input type="checkbox" id="modeToggle">
         <span class="slider"></span>
@@ -24,106 +87,122 @@
     </div>
 </header>
 
-<!-- 左侧导航栏 -->
 <aside class="sidebar">
     <div class="sidebar-card">
         <h3>目录</h3>
         <ul>
             <li><a href="home.html">首页</a></li>
-            <li><a href="#">当前店铺</a></li>
+            <li><a href="#shopInfo">店铺信息</a></li>
             <li><a href="#goods">商品列表</a></li>
-            <li><a href="#about">关于我</a></li>
+            <li><a href="personal.html">我的主页</a></li>
         </ul>
     </div>
 </aside>
 
-<!-- 主内容区 -->
 <main class="content">
     <div class="full-bg-layer">
         <div class="content-inner">
-            <!-- 店铺基础信息 + 营业状态 -->
-            <div class="shop-info-card">
-                <h2>清风解忧小店</h2>
-                <span class="shop-status">营业中</span>
-                <!-- 营业/打烊切换按钮 -->
-                <button class="shop-switch-btn">打烊</button>
-                <p class="shop-desc">主营情绪疏导、暖心好物，陪伴每一位疲惫的旅人。
-                    本店坚持用心服务，售卖治愈系小物件、情绪语录、减压周边，愿每一位到访者都能卸下烦恼，拥抱美好。
-                </p>
+            <div id="shopInfo" class="shop-info-card">
+                <h2 id="shopName">加载中...</h2>
+                <span class="shop-status" id="shopStatus">--</span>
+                <p class="shop-desc" id="shopDesc">加载中...</p>
+                <p style="margin-top:10px; opacity:0.8;">店主：<span id="shopOwner">--</span></p>
             </div>
 
-            <!-- 商品列表标题 -->
             <h2 id="goods" class="goods-title">店铺商品列表</h2>
 
-            <!-- 商品卡片1 正常库存 -->
-            <div class="goods-card">
-                <div class="goods-img">
-                    <img src="https://picsum.photos/120/120?random=10" alt="商品预览图">
-                </div>
-                <div class="goods-text">
-                    <h3>暖心手账本</h3>
-                    <p class="goods-desc">精致治愈手账本，记录每日心情与感悟，纸质顺滑，装帧精美。</p>
-                    <p class="goods-price">售价：¥29.9</p>
-                    <p class="goods-limit">限售：50份 &nbsp;|&nbsp; 剩余：23份</p>
-                </div>
-                <div class="goods-btn-group">
-                    <button class="reserve-btn">预约</button>
-                    <button class="cart-btn">加入购物车</button>
-                </div>
+            <div id="ownerActions" style="display:none;">
+                <button class="add-product-btn" onclick="openAddModal()">+ 上架商品</button>
             </div>
 
-            <!-- 商品卡片2 正常库存 -->
-            <div class="goods-card">
-                <div class="goods-img">
-                    <img src="https://picsum.photos/120/120?random=11" alt="商品预览图">
-                </div>
-                <div class="goods-text">
-                    <h3>解压毛绒玩偶</h3>
-                    <p class="goods-desc">柔软毛绒小玩偶，不开心时抱一抱，缓解压力，陪伴独处时光。</p>
-                    <p class="goods-price">售价：¥45.0</p>
-                    <p class="goods-limit">限售：30份 &nbsp;|&nbsp; 剩余：12份</p>
-                </div>
-                <div class="goods-btn-group">
-                    <button class="reserve-btn">预约</button>
-                    <button class="cart-btn">加入购物车</button>
-                </div>
-            </div>
-
-            <!-- 商品卡片3 库存为0 已售罄 -->
-            <div class="goods-card sold-out">
-                <div class="goods-img">
-                    <img src="https://picsum.photos/120/120?random=12" alt="商品预览图">
-                </div>
-                <div class="goods-text">
-                    <h3>治愈系香薰</h3>
-                    <p class="goods-desc">淡香舒缓香薰，放松身心，助眠减压，营造温馨氛围。</p>
-                    <p class="goods-price">售价：¥68.0</p>
-                    <p class="goods-limit">限售：20份 &nbsp;|&nbsp; 剩余：0份</p>
-                </div>
-                <div class="sold-tag">已售罄</div>
+            <div id="productList">
+                <p style="opacity:0.6;">加载中...</p>
             </div>
         </div>
     </div>
 </main>
 
-<!-- 右侧用户信息面板（移入滑出） -->
 <div class="user-panel" id="userPanel">
     <div class="fold-tag"><<</div>
     <div class="panel-content">
         <div class="user-avatar">
-            <img src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
+            <img id="userPanelAvatar" src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
         </div>
-        <h3>解忧店主</h3>
-        <ul class="user-info">
-            <li>状态：营业中</li>
-            <li>心情：晴</li>
-            <li>访客：2435</li>
-            <li>留言：0</li>
+        <h3 id="userPanelName">游客</h3>
+        <ul class="user-info" id="userPanelInfo">
+            <li>请登录后查看</li>
         </ul>
+        <button class="logout-btn" id="logoutBtn" style="display:none; margin-top:10px; padding:4px 10px; background:#f5222d; border:none; border-radius:4px; color:#fff; cursor:pointer; font-size:12px;">退出登录</button>
     </div>
 </div>
 
-<!-- 公共JS + 详情页专属JS -->
+<div class="modal-mask" id="loginModal">
+    <div class="modal-box">
+        <h2>登录 / 注册</h2>
+        <div class="modal-tab">
+            <span class="tab-item active" data-tab="login">登录</span>
+            <span class="tab-item" data-tab="register">注册</span>
+        </div>
+        <div class="form-box login-form">
+            <div class="input-item">
+                <label>账号</label>
+                <input type="text" id="loginUsername" name="username" placeholder="请输入账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <input type="password" id="loginPassword" name="password" placeholder="请输入密码">
+            </div>
+            <button class="submit-btn" id="loginSubmitBtn">登录</button>
+        </div>
+        <div class="form-box register-form" style="display: none;">
+            <div class="input-item">
+                <label>账号</label>
+                <input type="text" id="regUsername" name="username" placeholder="请设置账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <input type="password" id="regPassword" name="password" placeholder="请设置密码">
+            </div>
+            <div class="input-item">
+                <label>确认密码</label>
+                <input type="password" id="regConfirmPwd" placeholder="再次输入密码">
+            </div>
+            <button class="submit-btn" id="registerSubmitBtn">注册</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="productModal">
+    <div class="modal-box">
+        <h3 id="productModalTitle">上架商品</h3>
+        <input type="hidden" id="editProductId">
+        <div class="form-item">
+            <label>商品名称</label>
+            <input type="text" id="productName" placeholder="请输入商品名称">
+        </div>
+        <div class="form-item">
+            <label>价格（元）</label>
+            <input type="number" id="productPrice" step="0.01" placeholder="请输入价格">
+        </div>
+        <div class="form-item">
+            <label>库存数量</label>
+            <input type="number" id="productStock" placeholder="请输入库存数量">
+        </div>
+        <div class="form-item">
+            <label>商品描述</label>
+            <textarea id="productDesc" placeholder="请输入商品描述"></textarea>
+        </div>
+        <div class="form-item">
+            <label>预览图URL</label>
+            <input type="text" id="productPreviewUrl" placeholder="请输入图片URL">
+        </div>
+        <div class="modal-btn-group">
+            <button class="modal-btn modal-btn-cancel" onclick="closeProductModal()">取消</button>
+            <button class="modal-btn modal-btn-confirm" onclick="submitProduct()">确定</button>
+        </div>
+    </div>
+</div>
+
 <script src="./js/home.js"></script>
 <script src="./js/shopDetail.js"></script>
 </body>

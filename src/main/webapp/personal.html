@@ -6,8 +6,6 @@
     <title>个人主页 - 解忧小铺</title>
     <link rel="stylesheet" href="./css/home.css">
     <style>
-        /* 个人主页专属样式 */
-        /* 用户信息头部卡片 */
         .user-info-card {
             background-color: var(--card-light);
             border-radius: 10px;
@@ -18,26 +16,10 @@
             align-items: center;
             gap: 30px;
         }
-        body.dark .user-info-card {
-            background-color: var(--card-dark);
-        }
-        .user-main-avatar img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-        .user-text-info h2 {
-            font-size: 26px;
-            margin-bottom: 10px;
-        }
-        .user-text-info p {
-            line-height: 1.8;
-            opacity: 0.9;
-            margin: 6px 0;
-        }
-
-        /* 模块通用卡片 */
+        body.dark .user-info-card { background-color: var(--card-dark); }
+        .user-main-avatar img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; }
+        .user-text-info h2 { font-size: 26px; margin-bottom: 10px; }
+        .user-text-info p { line-height: 1.8; opacity: 0.9; margin: 6px 0; }
         .module-card {
             background-color: var(--card-light);
             border-radius: 10px;
@@ -45,9 +27,7 @@
             margin-bottom: 25px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
-        body.dark .module-card {
-            background-color: var(--card-dark);
-        }
+        body.dark .module-card { background-color: var(--card-dark); }
         .module-card h3 {
             font-size: 20px;
             margin-bottom: 18px;
@@ -60,34 +40,95 @@
             border-bottom: 1px solid rgba(128,128,128,0.1);
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .item-list li:last-child {
-            border-bottom: none;
+        .item-list li:last-child { border-bottom: none; }
+        .item-tag { font-size: 13px; padding: 2px 8px; border-radius: 3px; }
+        .tag-wish { background: #ffeaa7; color: #333; }
+        .tag-pending { background: #ff9f43; color: #fff; }
+        .tag-approved { background: #52c41a; color: #fff; }
+        .tag-rejected { background: #f5222d; color: #fff; }
+
+        .audit-product-card {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
         }
-        .item-tag {
+        .audit-product-card:last-child { border-bottom: none; }
+        .audit-product-img img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; }
+        .audit-product-info { flex: 1; }
+        .audit-product-info h4 { margin-bottom: 5px; }
+        .audit-product-info p { font-size: 13px; opacity: 0.8; margin: 3px 0; }
+        .audit-product-price { color: #f5222d; font-weight: bold; }
+        .audit-btn-group { display: flex; flex-direction: column; gap: 8px; }
+        .audit-btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
             font-size: 13px;
-            padding: 2px 8px;
-            border-radius: 3px;
         }
-        .tag-wish {
-            background: #ffeaa7;
-            color: #333;
+        .btn-approve { background: #52c41a; color: #fff; }
+        .btn-reject { background: #f5222d; color: #fff; }
+
+        .shop-card-link {
+            display: block;
+            padding: 15px;
+            background: rgba(255,159,67,0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            color: inherit;
+            margin-bottom: 10px;
+            transition: all 0.3s;
         }
-        .tag-cart {
-            background: #74b9ff;
-            color: #fff;
+        .shop-card-link:hover { background: rgba(255,159,67,0.2); }
+        .shop-card-link h4 { margin-bottom: 5px; color: #ff9f43; }
+
+        .modal-mask {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
         }
-        .tag-dynamic {
-            background: #fd79a8;
-            color: #fff;
+        .modal-box {
+            width: 400px; background: var(--card-light); border-radius: 10px; padding: 25px;
+        }
+        body.dark .modal-box { background: var(--card-dark); }
+        .modal-box h3 { margin-bottom: 15px; }
+        .modal-box textarea {
+            width: 100%; height: 100px; padding: 10px; border-radius: 6px;
+            border: 1px solid #ccc; background: transparent; color: inherit;
+            margin-bottom: 15px; resize: vertical;
+        }
+        .modal-btn-group { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-btn {
+            padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer;
+        }
+        .modal-btn-cancel { background: #ccc; color: #333; }
+        .modal-btn-confirm { background: #f5222d; color: #fff; }
+
+        .wishlist-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(128,128,128,0.1);
+            align-items: center;
+        }
+        .wishlist-item:last-child { border-bottom: none; }
+        .wishlist-img img { width: 60px; height: 60px; object-fit: cover; border-radius: 4px; }
+        .wishlist-info { flex: 1; }
+        .wishlist-info h4 { margin-bottom: 3px; font-size: 15px; }
+        .wishlist-info p { font-size: 12px; opacity: 0.7; }
+        .wishlist-price { color: #f5222d; font-weight: bold; }
+        .remove-btn {
+            padding: 4px 10px; border: none; border-radius: 4px;
+            background: #f5222d; color: #fff; cursor: pointer; font-size: 12px;
         }
     </style>
 </head>
 <body>
-<!-- 顶部横幅 -->
 <header class="banner">
-    <button class="login-btn">☰ 登录 / 注册</button>
-    <!-- 日夜切换开关 -->
+    <button class="login-btn" id="loginBtn">☰ 登录 / 注册</button>
     <label class="mode-switch">
         <input type="checkbox" id="modeToggle">
         <span class="slider"></span>
@@ -99,114 +140,128 @@
     </div>
 </header>
 
-<!-- 左侧固定导航栏 -->
 <aside class="sidebar">
     <div class="sidebar-card">
         <h3>目录</h3>
         <ul>
             <li><a href="home.html">首页店铺列表</a></li>
             <li><a href="#userInfo">个人信息</a></li>
-            <li><a href="#wish">愿望清单</a></li>
-            <li><a href="#cart">我的购物车</a></li>
-            <li><a href="#dynamic">动态</a></li>
+            <li id="menuWishlist"><a href="#wish">愿望清单</a></li>
+            <li id="menuAudit" style="display:none;"><a href="#audit">待审核商品</a></li>
+            <li id="menuShop" style="display:none;"><a href="#myShop">我的店铺</a></li>
+            <li id="menuMessages" style="display:none;"><a href="#messages">审核消息</a></li>
         </ul>
     </div>
 </aside>
 
-<!-- 主内容区域 -->
 <main class="content">
     <div class="full-bg-layer">
         <div class="content-inner">
-            <!-- 1、顶部用户信息卡片 -->
             <div id="userInfo" class="user-info-card">
                 <div class="user-main-avatar">
-                    <img src="https://picsum.photos/120/120?random=userMain" alt="个人头像">
+                    <img id="mainAvatar" src="https://picsum.photos/120/120?random=userMain" alt="个人头像">
                 </div>
                 <div class="user-text-info">
-                    <h2>解忧店主</h2>
-                    <p>签名：愿世间烦恼皆有归处，温柔常驻心间</p>
-                    <p>注册时间：2024-10-10</p>
-                    <p>收藏店铺：3 家 | 购物车商品：4 件 | 发布动态：6 条</p>
+                    <h2 id="mainName">加载中...</h2>
+                    <p id="mainBio">签名：加载中...</p>
+                    <p id="mainCreateTime">注册时间：--</p>
+                    <p id="mainStats">愿望单：-- 件</p>
                 </div>
             </div>
 
-            <!-- 2、愿望清单模块 -->
             <div id="wish" class="module-card">
                 <h3>愿望清单</h3>
-                <ul class="item-list">
-                    <li>
-                        <span>治愈系星空香薰</span>
-                        <span class="item-tag tag-wish">待购入</span>
-                    </li>
-                    <li>
-                        <span>柔软云朵毛绒玩偶</span>
-                        <span class="item-tag tag-wish">待购入</span>
-                    </li>
-                    <li>
-                        <span>复古文艺手账本套装</span>
-                        <span class="item-tag tag-wish">已完成</span>
-                    </li>
-                </ul>
+                <div id="wishlistContent">
+                    <p style="opacity:0.6;">加载中...</p>
+                </div>
             </div>
 
-            <!-- 3、我的购物车模块 -->
-            <div id="cart" class="module-card">
-                <h3>我的购物车</h3>
-                <ul class="item-list">
-                    <li>
-                        <span>解压小摆件 - 清风解忧小店</span>
-                        <span class="item-tag tag-cart">待结算</span>
-                    </li>
-                    <li>
-                        <span>暖心明信片礼盒 - 晚风杂货小铺</span>
-                        <span class="item-tag tag-cart">待结算</span>
-                    </li>
-                    <li>
-                        <span>睡眠舒缓香包 - 星辰治愈馆</span>
-                        <span class="item-tag tag-cart">已结算</span>
-                    </li>
-                </ul>
+            <div id="audit" class="module-card" style="display:none;">
+                <h3>待审核商品</h3>
+                <div id="auditContent">
+                    <p style="opacity:0.6;">加载中...</p>
+                </div>
             </div>
 
-            <!-- 4、动态模块 -->
-            <div id="dynamic" class="module-card">
-                <h3>我的动态</h3>
-                <ul class="item-list">
-                    <li>
-                        <span>今日收获一件超治愈的小礼物，心情满分！</span>
-                        <span class="item-tag tag-dynamic">2026-06-15</span>
-                    </li>
-                    <li>
-                        <span>收藏了晚风杂货小铺，店里的温柔氛围太戳我了</span>
-                        <span class="item-tag tag-dynamic">2026-06-12</span>
-                    </li>
-                    <li>
-                        <span>给自己添置了一本新手账，准备记录生活碎片</span>
-                        <span class="item-tag tag-dynamic">2026-06-08</span>
-                    </li>
-                </ul>
+            <div id="myShop" class="module-card" style="display:none;">
+                <h3>我的店铺</h3>
+                <div id="myShopContent">
+                    <p style="opacity:0.6;">加载中...</p>
+                </div>
+            </div>
+
+            <div id="messages" class="module-card" style="display:none;">
+                <h3>审核消息</h3>
+                <div id="messagesContent">
+                    <p style="opacity:0.6;">加载中...</p>
+                </div>
             </div>
         </div>
     </div>
 </main>
 
-<!-- 右侧滑出用户面板 -->
 <div class="user-panel" id="userPanel">
     <div class="fold-tag"><<</div>
     <div class="panel-content">
         <div class="user-avatar">
-            <img src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
+            <img id="userPanelAvatar" src="https://picsum.photos/100/100?random=avatar" alt="用户头像">
         </div>
-        <h3>解忧店主</h3>
-        <ul class="user-info">
-            <li>状态：营业中</li>
-            <li>心情：晴</li>
-            <li>访客：2435</li>
-            <li>留言：0</li>
+        <h3 id="userPanelName">游客</h3>
+        <ul class="user-info" id="userPanelInfo">
+            <li>请登录后查看</li>
         </ul>
+        <button class="logout-btn" id="logoutBtn" style="display:none; margin-top:10px; padding:4px 10px; background:#f5222d; border:none; border-radius:4px; color:#fff; cursor:pointer; font-size:12px;">退出登录</button>
+    </div>
+</div>
+
+<div class="modal-mask" id="loginModal">
+    <div class="modal-box">
+        <h2>登录 / 注册</h2>
+        <div class="modal-tab">
+            <span class="tab-item active" data-tab="login">登录</span>
+            <span class="tab-item" data-tab="register">注册</span>
+        </div>
+        <div class="form-box login-form">
+            <div class="input-item">
+                <label>账号</label>
+                <input type="text" id="loginUsername" name="username" placeholder="请输入账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <input type="password" id="loginPassword" name="password" placeholder="请输入密码">
+            </div>
+            <button class="submit-btn" id="loginSubmitBtn">登录</button>
+        </div>
+        <div class="form-box register-form" style="display: none;">
+            <div class="input-item">
+                <label>账号</label>
+                <input type="text" id="regUsername" name="username" placeholder="请设置账号">
+            </div>
+            <div class="input-item">
+                <label>密码</label>
+                <input type="password" id="regPassword" name="password" placeholder="请设置密码">
+            </div>
+            <div class="input-item">
+                <label>确认密码</label>
+                <input type="password" id="regConfirmPwd" placeholder="再次输入密码">
+            </div>
+            <button class="submit-btn" id="registerSubmitBtn">注册</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-mask" id="rejectModal">
+    <div class="modal-box">
+        <h3>拒绝原因</h3>
+        <textarea id="rejectReason" placeholder="请输入拒绝原因..."></textarea>
+        <div class="modal-btn-group">
+            <button class="modal-btn modal-btn-cancel" onclick="closeRejectModal()">取消</button>
+            <button class="modal-btn modal-btn-confirm" onclick="confirmReject()">确定</button>
+        </div>
     </div>
 </div>
 
 <script src="./js/home.js"></script>
+<script src="./js/personal.js"></script>
 </body>
 </html>

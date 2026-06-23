@@ -1,7 +1,9 @@
-// 等待页面所有元素加载完毕后再执行脚本，防止找不到 ID
+const API_BASE = '/servletLogin';
+
+let currentUser = null;
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    // ================== 1. 基础视觉交互 ==================
     const bgImages = [
         "https://picsum.photos/id/1015/1920/1080",
         "https://picsum.photos/id/1016/1920/1080",
@@ -11,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
     document.body.style.backgroundImage = `url(${randomBg})`;
 
-    // 日间/黑夜模式切换
     const modeToggle = document.getElementById('modeToggle');
     if(modeToggle){
         modeToggle.addEventListener('change', () => {
@@ -19,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 右侧用户面板逻辑
     const userPanel = document.getElementById('userPanel');
     if(userPanel){
         document.addEventListener('mousemove', (e) => {
@@ -32,17 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 收藏按钮逻辑
-    document.querySelectorAll('.collect-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            this.classList.toggle('collected');
-            this.innerText = this.classList.contains('collected') ? '★ 已收藏' : '☆ 收藏';
-        });
-    });
-
-    // ================== 登录弹窗逻辑 ==================
-    const loginBtn = document.querySelector('.login-btn'); // 确保首页有 class="login-btn" 的元素
+    const loginBtn = document.querySelector('.login-btn');
     const modalMask = document.getElementById('loginModal');
     const modalBox = document.querySelector('.modal-box');
     const tabItems = document.querySelectorAll('.tab-item');
@@ -51,6 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(loginBtn && modalMask){
         loginBtn.addEventListener('click', () => {
+            if (currentUser) {
+                return;
+            }
             modalMask.style.display = 'flex';
         });
 
@@ -78,30 +71,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ================== 目录跳转 ==================
     document.querySelectorAll('.sidebar-card a').forEach(link => {
         link.addEventListener('click', function(e) {
             const targetId = this.getAttribute('href');
-            const targetElement = document.querySelector(targetId);
-            if (targetElement) {
-                e.preventDefault();
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (targetId && targetId.startsWith('#')) {
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault();
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         });
     });
 
-
-    // ================== 核心：登录与注册提交逻辑 ==================
-
-    // 1. 获取按钮元素
     const loginSubmitBtn = document.getElementById('loginSubmitBtn');
     const registerSubmitBtn = document.getElementById('registerSubmitBtn');
 
-    // 2. 检查按钮是否存在，不存在则打印警告，防止报错阻断后续代码
-    if (!loginSubmitBtn) console.warn("未找到登录按钮 #loginSubmitBtn");
-    if (!registerSubmitBtn) console.warn("未找到注册按钮 #registerSubmitBtn");
-
-    // --- 处理登录请求 ---
     if(loginSubmitBtn){
         loginSubmitBtn.addEventListener('click', async () => {
             const usernameInput = document.getElementById('loginUsername');
@@ -116,33 +101,30 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // 发送请求到后端 (更新为 /login)
-                const response = await fetch('/servletLogin/login', {
+                const response = await fetch(`${API_BASE}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
                 });
 
-                // 尝试解析 JSON
                 const data = await response.json();
 
                 if (data.code === 200) {
                     alert('登录成功！');
-                    modalMask.style.display = 'none'; // 关闭弹窗
-                    // 根据你的要求：登录成功后停留在当前页面（通过刷新页面来更新顶部的登录状态）
-                    location.reload();
+                    modalMask.style.display = 'none';
+                    loadCurrentUser();
+                    loadShopList();
                 } else {
                     alert(data.msg || '登录失败');
                 }
 
             } catch (error) {
                 console.error('登录错误详情:', error);
-                alert('网络异常或服务器响应格式错误（请检查后端是否返回了JSON）');
+                alert('网络异常或服务器响应格式错误');
             }
         });
     }
 
-    // --- 处理注册请求 ---
     if(registerSubmitBtn){
         registerSubmitBtn.addEventListener('click', async () => {
             const uName = document.getElementById('regUsername');
@@ -164,8 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // 发送请求到后端 (更新为 /register)
-                const response = await fetch('/servletLogin/register', {
+                const response = await fetch(`${API_BASE}/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
@@ -175,9 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.code === 200) {
                     alert('注册成功！请登录');
-                    // 切换到登录 Tab
                     document.querySelector('[data-tab="login"]').click();
-                    // 清空表单
                     uName.value = ''; uPwd.value = ''; uConfirm.value = '';
                 } else {
                     alert(data.msg || '注册失败');
@@ -189,4 +168,114 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            if (!confirm('确定要退出登录吗？')) return;
+            try {
+                await fetch(`${API_BASE}/logout`, { method: 'POST' });
+            } catch (e) {}
+            currentUser = null;
+            updateUserPanel(null);
+            location.reload();
+        });
+    }
+
+    loadCurrentUser();
+    loadShopList();
 });
+
+async function loadCurrentUser() {
+    try {
+        const response = await fetch(`${API_BASE}/currentUser`, { credentials: 'include' });
+        const data = await response.json();
+        if (data.code === 200) {
+            currentUser = data.data;
+            updateUserPanel(currentUser);
+        } else {
+            currentUser = null;
+            updateUserPanel(null);
+        }
+    } catch (e) {
+        console.error('加载用户信息失败', e);
+        currentUser = null;
+        updateUserPanel(null);
+    }
+}
+
+function updateUserPanel(user) {
+    const avatar = document.getElementById('userPanelAvatar');
+    const nameEl = document.getElementById('userPanelName');
+    const infoEl = document.getElementById('userPanelInfo');
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    if (user) {
+        if (avatar && user.avatarUrl) {
+            avatar.src = user.avatarUrl;
+        }
+        if (nameEl) nameEl.textContent = user.username;
+
+        let roleText = '普通用户';
+        if (user.userRole === 'admin') roleText = '管理员';
+        else if (user.userRole === 'shop_owner') roleText = '店主';
+
+        let html = `<li>身份：${roleText}</li>`;
+        if (user.bio) html += `<li>简介：${user.bio}</li>`;
+        if (user.wishlistCount !== undefined) html += `<li>愿望单：${user.wishlistCount} 件</li>`;
+        if (user.userRole === 'admin' && user.pendingCount !== undefined) {
+            html += `<li>待审商品：${user.pendingCount} 件</li>`;
+        }
+        if (infoEl) infoEl.innerHTML = html;
+
+        if (loginBtn) loginBtn.textContent = `☰ ${user.username}`;
+        if (logoutBtn) logoutBtn.style.display = 'block';
+    } else {
+        if (avatar) avatar.src = 'https://picsum.photos/100/100?random=avatar';
+        if (nameEl) nameEl.textContent = '游客';
+        if (infoEl) infoEl.innerHTML = '<li>请登录后查看</li>';
+        if (loginBtn) loginBtn.textContent = '☰ 登录 / 注册';
+        if (logoutBtn) logoutBtn.style.display = 'none';
+    }
+}
+
+async function loadShopList() {
+    const container = document.getElementById('shopListContent');
+    if (!container) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/shopList`);
+        const data = await response.json();
+
+        if (data.code === 200 && data.data && data.data.length > 0) {
+            let html = '';
+            data.data.forEach(shop => {
+                const statusText = shop.status === 1 ? '营业中' : '休息中';
+                const statusClass = shop.status === 1 ? 'shop-status-open' : 'shop-status-close';
+                html += `
+                    <div class="article-card" onclick="goToShopDetail(${shop.shopId})">
+                        <div class="card-text">
+                            <h2>${shop.shopName}</h2>
+                            <p class="shop-desc">${shop.description || ''}</p>
+                            <p class="shop-slogan">店主：${shop.ownerName || '未知'} | ${statusText}</p>
+                        </div>
+                        <div class="card-img">
+                            <img src="${shop.shopImg || 'https://picsum.photos/200/150'}" alt="${shop.shopName}">
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        } else {
+            container.innerHTML = '<p class="placeholder-text">暂无店铺</p>';
+        }
+    } catch (e) {
+        console.error('加载店铺列表失败', e);
+        container.innerHTML = '<p class="placeholder-text" style="color:red">加载失败，请稍后重试</p>';
+    }
+}
+
+function goToShopDetail(shopId) {
+    window.location.href = `shopDetail.html?shopId=${shopId}`;
+}
