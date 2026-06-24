@@ -203,6 +203,11 @@ public class WishlistServlet extends HttpServlet {
             int rows = pstmt.executeUpdate();
 
             if (rows > 0) {
+                pstmt.close();
+                String updateStockSql = "UPDATE product SET stock = stock + 1 WHERE product_id = ?";
+                pstmt = conn.prepareStatement(updateStockSql);
+                pstmt.setInt(1, productId);
+                pstmt.executeUpdate();
                 out.print("{\"code\": 200, \"msg\": \"已从愿望单移除\"}");
             } else {
                 out.print("{\"code\": 400, \"msg\": \"该商品不在愿望单中\"}");

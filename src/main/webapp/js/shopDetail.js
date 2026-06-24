@@ -1,5 +1,6 @@
 let currentShopId = null;
 let isOwner = false;
+let wishlistProductIds = new Set();
 
 document.addEventListener('DOMContentLoaded', () => {
     const params = new URLSearchParams(window.location.search);
@@ -18,14 +19,32 @@ function initShopDetail() {
 
     if (typeof currentUser !== 'undefined' && currentUser) {
         checkOwnerStatus();
+        loadWishlistIds();
     } else {
         const checkUser = setInterval(() => {
             if (typeof currentUser !== 'undefined' && currentUser) {
                 clearInterval(checkUser);
                 checkOwnerStatus();
+                loadWishlistIds();
             }
         }, 200);
         setTimeout(() => clearInterval(checkUser), 5000);
+    }
+}
+
+async function loadWishlistIds() {
+    if (!currentUser) return;
+    try {
+        const response = await fetch(`${API_BASE}/wishlist`, { credentials: 'include' });
+        const data = await response.json();
+        if (data.code === 200 && data.data) {
+            wishlistProductIds = new Set(data.data.map(item => item.productId));
+            if (currentProducts.length > 0) {
+                renderProducts(currentProducts);
+            }
+        }
+    } catch (e) {
+        console.error('加载愿望单失败', e);
     }
 }
 
@@ -35,6 +54,9 @@ function checkOwnerStatus() {
     if (currentUser.userRole === 'shop_owner' && currentUser.shopId == currentShopId) {
         isOwner = true;
         document.getElementById('ownerActions').style.display = 'block';
+        if (currentProducts.length > 0) {
+            renderProducts(currentProducts);
+        }
     }
 }
 
@@ -128,6 +150,9 @@ function renderProducts(products) {
                     </div>
                 `;
             } else {
+                const isReserved = wishlistProductIds.has(product.productId);
+                const btnClass = isReserved ? 'reserve-btn reserved' : 'reserve-btn';
+                const btnText = isReserved ? '已预约' : '预约';
                 html += `
                     <div class="goods-card" data-index="${index}">
                         <div class="goods-img">
@@ -140,7 +165,7 @@ function renderProducts(products) {
                             <p class="goods-limit">库存：${product.stock} 份</p>
                         </div>
                         <div class="goods-btn-group">
-                            <button class="reserve-btn">预约</button>
+                            <button class="${btnClass}" ${isReserved ? 'disabled' : ''}>${btnText}</button>
                         </div>
                     </div>
                 `;
@@ -195,6 +220,7 @@ async function addToWishlist(productId, productName) {
         const data = await response.json();
         alert(data.msg);
         if (data.code === 200) {
+            wishlistProductIds.add(productId);
             loadShopDetail();
             if (typeof loadCurrentUser === 'function') loadCurrentUser();
         }
