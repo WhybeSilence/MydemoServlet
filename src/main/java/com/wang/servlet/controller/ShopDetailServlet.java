@@ -3,11 +3,13 @@ package com.wang.servlet.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.wang.servlet.entity.SysUser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -72,8 +74,32 @@ public class ShopDetailServlet extends HttpServlet {
             rs.close();
             pstmt.close();
 
-            String productSql = "SELECT product_id, shop_id, name, price, stock, description, preview_url, audit_status, upload_time " +
-                    "FROM product WHERE shop_id = ? AND audit_status = 1 ORDER BY product_id";
+            boolean isOwner = false;
+            HttpSession session = request.getSession(false);
+            if (session != null && session.getAttribute("currentUser") != null) {
+                SysUser currentUser = (SysUser) session.getAttribute("currentUser");
+                if ("shop_owner".equals(currentUser.getUserRole())) {
+                    String ownerCheckSql = "SELECT shop_id FROM shop WHERE shop_id = ? AND owner_id = ?";
+                    pstmt = conn.prepareStatement(ownerCheckSql);
+                    pstmt.setInt(1, shopId);
+                    pstmt.setInt(2, currentUser.getUserId());
+                    rs = pstmt.executeQuery();
+                    if (rs.next()) {
+                        isOwner = true;
+                    }
+                    rs.close();
+                    pstmt.close();
+                }
+            }
+
+            String productSql;
+            if (isOwner) {
+                productSql = "SELECT product_id, shop_id, name, price, stock, description, preview_url, audit_status, reject_reason, upload_time " +
+                        "FROM product WHERE shop_id = ? ORDER BY audit_status ASC, upload_time DESC";
+            } else {
+                productSql = "SELECT product_id, shop_id, name, price, stock, description, preview_url, audit_status, upload_time " +
+                        "FROM product WHERE shop_id = ? AND audit_status = 1 ORDER BY product_id";
+            }
             pstmt = conn.prepareStatement(productSql);
             pstmt.setInt(1, shopId);
             rs = pstmt.executeQuery();
@@ -90,6 +116,9 @@ public class ShopDetailServlet extends HttpServlet {
                 product.addProperty("previewUrl", rs.getString("preview_url"));
                 product.addProperty("auditStatus", rs.getInt("audit_status"));
                 product.addProperty("uploadTime", rs.getString("upload_time"));
+                if (isOwner) {
+                    product.addProperty("rejectReason", rs.getString("reject_reason"));
+                }
                 products.add(product);
             }
             result.add("products", products);

@@ -61,7 +61,7 @@ async function loadWishlist() {
             let html = '';
             data.data.forEach(item => {
                 html += `
-                    <div class="wishlist-item">
+                    <div class="wishlist-item" data-product-id="${item.productId}">
                         <div class="wishlist-img">
                             <img src="${item.previewUrl || 'https://picsum.photos/60/60'}" alt="${item.name}">
                         </div>
@@ -70,11 +70,12 @@ async function loadWishlist() {
                             <p>库存：${item.stock} 件</p>
                         </div>
                         <div class="wishlist-price">¥${item.price}</div>
-                        <button class="remove-btn" onclick="removeFromWishlist(${item.productId})">移除</button>
+                        <button class="remove-btn">移除</button>
                     </div>
                 `;
             });
             container.innerHTML = html;
+            bindWishlistButtons();
         } else {
             container.innerHTML = '<p style="opacity:0.6;">愿望单空空如也~</p>';
         }
@@ -82,6 +83,15 @@ async function loadWishlist() {
         console.error('加载愿望单失败', e);
         container.innerHTML = '<p style="color:red;">加载失败</p>';
     }
+}
+
+function bindWishlistButtons() {
+    document.querySelectorAll('#wishlistContent .remove-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.closest('.wishlist-item').dataset.productId;
+            removeFromWishlist(productId);
+        });
+    });
 }
 
 async function removeFromWishlist(productId) {
@@ -161,31 +171,22 @@ function bindAuditButtons() {
 }
 
 async function approveProduct(productId) {
-    console.log('approveProduct called with productId:', productId);
     if (!confirm('确定要通过该商品的审核吗？')) return;
 
     try {
-        console.log('Sending request to:', `${API_BASE}/admin/audit`);
-        console.log('Request body:', `action=approve&productId=${productId}`);
-        
         const response = await fetch(`${API_BASE}/admin/audit`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=approve&productId=${productId}`
         });
-        
-        console.log('Response status:', response.status);
         const data = await response.json();
-        console.log('Response data:', data);
-        
         alert(data.msg);
         if (data.code === 200) {
             loadPendingProducts();
             if (typeof loadCurrentUser === 'function') loadCurrentUser();
         }
     } catch (e) {
-        console.error('Error:', e);
         alert('操作失败');
     }
 }

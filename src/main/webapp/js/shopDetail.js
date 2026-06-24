@@ -70,6 +70,8 @@ async function loadShopDetail() {
     }
 }
 
+let currentProducts = [];
+
 function renderProducts(products) {
     const container = document.getElementById('productList');
     if (!products || products.length === 0) {
@@ -77,32 +79,42 @@ function renderProducts(products) {
         return;
     }
 
+    currentProducts = products;
     let html = '';
-    products.forEach(product => {
+    products.forEach((product, index) => {
         const isSoldOut = product.stock <= 0;
 
         if (isOwner) {
+            let statusTag = '';
+            if (product.auditStatus === 0) {
+                statusTag = '<span style="background:#faad14;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;display:inline-block;margin-bottom:6px;">待审核</span>';
+            } else if (product.auditStatus === 2) {
+                statusTag = `<span style="background:#f5222d;color:#fff;padding:2px 8px;border-radius:4px;font-size:12px;display:inline-block;margin-bottom:6px;">已拒绝</span>
+                    <p style="font-size:12px;color:#f5222d;margin:0 0 6px 0;">原因：${product.rejectReason || ''}</p>`;
+            }
+
             html += `
-                <div class="goods-card">
+                <div class="goods-card" data-index="${index}">
                     <div class="goods-img">
                         <img src="${product.previewUrl || 'https://picsum.photos/120/120'}" alt="${product.name}">
                     </div>
                     <div class="goods-text">
+                        ${statusTag}
                         <h3>${product.name}</h3>
                         <p class="goods-desc">${product.description || ''}</p>
                         <p class="goods-price">售价：¥${product.price}</p>
                         <p class="goods-limit">库存：${product.stock} 份</p>
                     </div>
                     <div class="owner-btn-group">
-                        <button class="owner-btn btn-edit" onclick='openEditModal(${JSON.stringify(product)})'>修改</button>
-                        <button class="owner-btn btn-remove" onclick="removeProduct(${product.productId}, '${product.name}')">下架</button>
+                        <button class="owner-btn btn-edit">修改</button>
+                        <button class="owner-btn btn-remove">下架</button>
                     </div>
                 </div>
             `;
         } else {
             if (isSoldOut) {
                 html += `
-                    <div class="goods-card sold-out">
+                    <div class="goods-card sold-out" data-index="${index}">
                         <div class="goods-img">
                             <img src="${product.previewUrl || 'https://picsum.photos/120/120'}" alt="${product.name}">
                         </div>
@@ -117,7 +129,7 @@ function renderProducts(products) {
                 `;
             } else {
                 html += `
-                    <div class="goods-card">
+                    <div class="goods-card" data-index="${index}">
                         <div class="goods-img">
                             <img src="${product.previewUrl || 'https://picsum.photos/120/120'}" alt="${product.name}">
                         </div>
@@ -128,7 +140,7 @@ function renderProducts(products) {
                             <p class="goods-limit">库存：${product.stock} 份</p>
                         </div>
                         <div class="goods-btn-group">
-                            <button class="reserve-btn" onclick="addToWishlist(${product.productId}, '${product.name}')">预约</button>
+                            <button class="reserve-btn">预约</button>
                         </div>
                     </div>
                 `;
@@ -137,6 +149,33 @@ function renderProducts(products) {
     });
 
     container.innerHTML = html;
+    bindProductButtons();
+}
+
+function bindProductButtons() {
+    document.querySelectorAll('.reserve-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = this.closest('.goods-card').dataset.index;
+            const product = currentProducts[index];
+            addToWishlist(product.productId, product.name);
+        });
+    });
+
+    document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = this.closest('.goods-card').dataset.index;
+            const product = currentProducts[index];
+            openEditModal(product);
+        });
+    });
+
+    document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = this.closest('.goods-card').dataset.index;
+            const product = currentProducts[index];
+            removeProduct(product.productId, product.name);
+        });
+    });
 }
 
 async function addToWishlist(productId, productName) {
@@ -147,13 +186,11 @@ async function addToWishlist(productId, productName) {
     }
 
     try {
-        const formData = new FormData();
-        formData.append('productId', productId);
-
         const response = await fetch(`${API_BASE}/wishlist`, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `productId=${productId}`
         });
         const data = await response.json();
         alert(data.msg);
@@ -214,29 +251,28 @@ async function submitProduct() {
     }
 
     try {
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('price', price);
-        formData.append('stock', stock);
-        formData.append('description', description);
-        formData.append('previewUrl', previewUrl);
+        const params = new URLSearchParams();
+        params.append('name', name);
+        params.append('price', price);
+        params.append('stock', stock);
+        params.append('description', description);
+        params.append('previewUrl', previewUrl);
 
-        let url, action;
+        let url;
         if (productId) {
-            action = 'update';
-            formData.append('action', 'update');
-            formData.append('productId', productId);
+            params.append('action', 'update');
+            params.append('productId', productId);
             url = `${API_BASE}/shopOwner/product`;
         } else {
-            action = 'add';
-            formData.append('action', 'add');
+            params.append('action', 'add');
             url = `${API_BASE}/shopOwner/product`;
         }
 
         const response = await fetch(url, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString()
         });
         const data = await response.json();
         alert(data.msg);
@@ -253,14 +289,11 @@ async function removeProduct(productId, productName) {
     if (!confirm(`确定要下架商品【${productName}】吗？`)) return;
 
     try {
-        const formData = new FormData();
-        formData.append('action', 'remove');
-        formData.append('productId', productId);
-
         const response = await fetch(`${API_BASE}/shopOwner/product`, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=remove&productId=${productId}`
         });
         const data = await response.json();
         alert(data.msg);
