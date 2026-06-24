@@ -26,6 +26,13 @@ async function apiFetch(url, options = {}) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode === 'true') {
+        document.body.classList.add('dark');
+        const modeToggle = document.getElementById('modeToggle');
+        if (modeToggle) modeToggle.checked = true;
+    }
+
     const bgImages = [
         "https://picsum.photos/id/1015/1920/1080",
         "https://picsum.photos/id/1016/1920/1080",
@@ -39,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(modeToggle){
         modeToggle.addEventListener('change', () => {
             document.body.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark'));
         });
     }
 
@@ -64,6 +72,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if(loginBtn && modalMask){
         loginBtn.addEventListener('click', () => {
             if (currentUser) {
+                const panel = document.getElementById('userPanel');
+                if (panel) {
+                    panel.classList.add('show');
+                }
                 return;
             }
             modalMask.style.display = 'flex';
@@ -264,13 +276,24 @@ function updateUserPanel(user) {
         }
         if (infoEl) infoEl.innerHTML = html;
 
-        if (loginBtn) loginBtn.textContent = `☰ ${user.username}`;
+        if (loginBtn) {
+            loginBtn.innerHTML = `
+                <span class="user-avatar-small" style="width:28px;height:28px;border-radius:50%;vertical-align:middle;margin-right:8px;display:inline-block;">
+                    <img src="${user.avatarUrl || 'https://picsum.photos/30/30'}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">
+                </span>
+                ${user.username}
+            `;
+            loginBtn.classList.add('logged-in');
+        }
         if (logoutBtn) logoutBtn.style.display = 'block';
     } else {
         if (avatar) avatar.src = 'https://picsum.photos/100/100?random=avatar';
         if (nameEl) nameEl.textContent = '游客';
         if (infoEl) infoEl.innerHTML = '<li>请登录后查看</li>';
-        if (loginBtn) loginBtn.textContent = '☰ 登录 / 注册';
+        if (loginBtn) {
+            loginBtn.innerHTML = '☰ 登录 / 注册';
+            loginBtn.classList.remove('logged-in');
+        }
         if (logoutBtn) logoutBtn.style.display = 'none';
     }
 }
