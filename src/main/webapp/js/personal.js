@@ -147,14 +147,11 @@ async function approveProduct(productId) {
     if (!confirm('确定要通过该商品的审核吗？')) return;
 
     try {
-        const formData = new FormData();
-        formData.append('action', 'approve');
-        formData.append('productId', productId);
-
         const response = await fetch(`${API_BASE}/admin/audit`, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=approve&productId=${productId}`
         });
         const data = await response.json();
         alert(data.msg);
@@ -187,15 +184,11 @@ async function confirmReject() {
     if (!pendingProductId) return;
 
     try {
-        const formData = new FormData();
-        formData.append('action', 'reject');
-        formData.append('productId', pendingProductId);
-        formData.append('rejectReason', reason);
-
         const response = await fetch(`${API_BASE}/admin/audit`, {
             method: 'POST',
             credentials: 'include',
-            body: formData
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `action=reject&productId=${pendingProductId}&rejectReason=${encodeURIComponent(reason)}`
         });
         const data = await response.json();
         alert(data.msg);
