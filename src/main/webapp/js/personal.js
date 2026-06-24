@@ -115,7 +115,7 @@ async function loadPendingProducts() {
             let html = '';
             data.data.forEach(item => {
                 html += `
-                    <div class="audit-product-card">
+                    <div class="audit-product-card" data-product-id="${item.productId}">
                         <div class="audit-product-img">
                             <img src="${item.previewUrl || 'https://picsum.photos/80/80'}" alt="${item.name}">
                         </div>
@@ -127,13 +127,14 @@ async function loadPendingProducts() {
                             <p style="font-size:12px;">提交时间：${item.uploadTime ? item.uploadTime.substring(0, 19) : ''}</p>
                         </div>
                         <div class="audit-btn-group">
-                            <button class="audit-btn btn-approve" onclick="approveProduct(${item.productId})">通过</button>
-                            <button class="audit-btn btn-reject" onclick="openRejectModal(${item.productId})">拒绝</button>
+                            <button class="audit-btn btn-approve">通过</button>
+                            <button class="audit-btn btn-reject">拒绝</button>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
+            bindAuditButtons();
         } else {
             container.innerHTML = '<p style="opacity:0.6;">暂无待审核商品</p>';
         }
@@ -143,23 +144,48 @@ async function loadPendingProducts() {
     }
 }
 
+function bindAuditButtons() {
+    document.querySelectorAll('.btn-approve').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.closest('.audit-product-card').dataset.productId;
+            approveProduct(productId);
+        });
+    });
+    
+    document.querySelectorAll('.btn-reject').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const productId = this.closest('.audit-product-card').dataset.productId;
+            openRejectModal(productId);
+        });
+    });
+}
+
 async function approveProduct(productId) {
+    console.log('approveProduct called with productId:', productId);
     if (!confirm('确定要通过该商品的审核吗？')) return;
 
     try {
+        console.log('Sending request to:', `${API_BASE}/admin/audit`);
+        console.log('Request body:', `action=approve&productId=${productId}`);
+        
         const response = await fetch(`${API_BASE}/admin/audit`, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: `action=approve&productId=${productId}`
         });
+        
+        console.log('Response status:', response.status);
         const data = await response.json();
+        console.log('Response data:', data);
+        
         alert(data.msg);
         if (data.code === 200) {
             loadPendingProducts();
             if (typeof loadCurrentUser === 'function') loadCurrentUser();
         }
     } catch (e) {
+        console.error('Error:', e);
         alert('操作失败');
     }
 }
