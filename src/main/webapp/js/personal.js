@@ -1,22 +1,32 @@
 let pendingProductId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    initPersonalPage();
+    checkLoginAndInit();
 });
 
-function initPersonalPage() {
+function checkLoginAndInit() {
     if (typeof currentUser !== 'undefined' && currentUser) {
-        setupRoleFeatures(currentUser);
-        loadWishlist();
+        initPersonalPage();
     } else {
         const checkUser = setInterval(() => {
             if (typeof currentUser !== 'undefined' && currentUser) {
                 clearInterval(checkUser);
-                setupRoleFeatures(currentUser);
-                loadWishlist();
+                initPersonalPage();
             }
         }, 200);
-        setTimeout(() => clearInterval(checkUser), 5000);
+        setTimeout(() => {
+            clearInterval(checkUser);
+            if (!currentUser) {
+                window.location.href = 'home.html';
+            }
+        }, 1500);
+    }
+}
+
+function initPersonalPage() {
+    if (currentUser) {
+        setupRoleFeatures(currentUser);
+        loadWishlist();
     }
 }
 
