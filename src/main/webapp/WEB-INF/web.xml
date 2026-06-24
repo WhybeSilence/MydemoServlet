@@ -5,6 +5,15 @@
 <web-app>
   <display-name>Archetype Created Web Application</display-name>
 
+  <filter>
+    <filter-name>authFilter</filter-name>
+    <filter-class>com.wang.servlet.filter.AuthFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>authFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
   <!-- 配置欢迎页面：Tomcat访问项目根路径时，自动跳转到这里 -->
   <welcome-file-list>
     <!-- 优先跳转到登录页面 -->

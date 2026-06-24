@@ -2,6 +2,28 @@ const API_BASE = '/servletLogin';
 
 let currentUser = null;
 
+async function apiFetch(url, options = {}) {
+    const response = await fetch(url, options);
+    const data = await response.json();
+
+    if (data.code === 401) {
+        currentUser = null;
+        if (typeof updateUserPanel === 'function') {
+            updateUserPanel(null);
+        }
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+            loginModal.style.display = 'flex';
+            alert('登录已过期，请重新登录');
+        } else {
+            alert(data.msg || '请先登录');
+        }
+        return null;
+    }
+
+    return data;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 
     const bgImages = [
@@ -181,6 +203,19 @@ document.addEventListener('DOMContentLoaded', () => {
             location.reload();
         });
     }
+
+    document.querySelectorAll('.require-login').forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (!currentUser) {
+                e.preventDefault();
+                const loginModal = document.getElementById('loginModal');
+                if (loginModal) {
+                    loginModal.style.display = 'flex';
+                    alert('请先登录');
+                }
+            }
+        });
+    });
 
     loadCurrentUser();
     loadShopList();
