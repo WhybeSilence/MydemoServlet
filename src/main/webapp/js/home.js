@@ -231,6 +231,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadCurrentUser();
     loadShopList();
+    initProductSearch();
 });
 
 async function loadCurrentUser() {
@@ -336,4 +337,115 @@ async function loadShopList() {
 
 function goToShopDetail(shopId) {
     window.location.href = `shopDetail.html?shopId=${shopId}`;
+}
+
+let allProducts = [];
+let searchTimeout = null;
+
+async function initProductSearch() {
+    const searchInput = document.getElementById('productSearchInput');
+    const searchResults = document.getElementById('searchResults');
+    if (!searchInput || !searchResults) return;
+
+    await loadAllProductsForSearch();
+
+    searchInput.addEventListener('input', function() {
+        const keyword = this.value.trim();
+
+        clearTimeout(searchTimeout);
+
+        if (keyword.length === 0) {
+            searchResults.classList.remove('show');
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            const matches = allProducts.filter(p =>
+                p.name.toLowerCase().includes(keyword.toLowerCase())
+            );
+            displaySearchResults(matches, keyword);
+        }, 200);
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            const keyword = this.value.trim();
+            if (keyword.length > 0) {
+                const exactMatch = allProducts.find(p =>
+                    p.name.toLowerCase() === keyword.toLowerCase()
+                );
+                if (exactMatch) {
+                    window.location.href = `shopDetail.html?shopId=${exactMatch.shopId}`;
+                } else {
+                    alert('未找到该商品，请输入完整的商品名称');
+                }
+            }
+        }
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-box')) {
+            searchResults.classList.remove('show');
+        }
+    });
+}
+
+async function loadAllProductsForSearch() {
+    try {
+        const response = await fetch(`${API_BASE}/shopList`);
+        const data = await response.json();
+        if (data.code === 200 && data.data) {
+            const shopIds = data.data.map(s => s.shopId);
+            const promises = shopIds.map(shopId =>
+                fetch(`${API_BASE}/shopDetail?shopId=${shopId}`)
+                    .then(res => res.json())
+            );
+            const results = await Promise.all(promises);
+            allProducts = [];
+            results.forEach(result => {
+                if (result.code === 200 && result.data && result.data.products) {
+                    result.data.products.forEach(p => {
+                        if (p.auditStatus === 1) {
+                            allProducts.push({
+                                productId: p.productId,
+                                name: p.name,
+                                shopId: result.data.shop.shopId,
+                                shopName: result.data.shop.shopName,
+                                price: p.price
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    } catch (e) {
+        console.error('加载商品数据失败', e);
+    }
+}
+
+function displaySearchResults(matches, keyword) {
+    const searchResults = document.getElementById('searchResults');
+    if (!searchResults) return;
+
+    if (matches.length === 0) {
+        searchResults.innerHTML = '<div class="search-empty">未找到匹配的商品</div>';
+    } else {
+        searchResults.innerHTML = matches.slice(0, 10).map(p => `
+            <div class="search-item" onclick="goToShopDetail(${p.shopId})">
+                <div class="search-item-name">${highlightKeyword(p.name, keyword)}</div>
+                <div class="search-item-shop">${p.shopName} · ¥${p.price}</div>
+            </div>
+        `).join('');
+        if (matches.length > 10) {
+            searchResults.innerHTML += '<div class="search-empty">只显示前10条结果...</div>';
+        }
+    }
+
+    searchResults.classList.add('show');
+}
+
+function highlightKeyword(text, keyword) {
+    if (!keyword) return text;
+    const regex = new RegExp(`(${keyword})`, 'gi');
+    return text.replace(regex, '<strong style="color:#ff9f43">$1</strong>');
 }
