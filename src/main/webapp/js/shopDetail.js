@@ -190,7 +190,7 @@ async function addToWishlist(productId, productName) {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `productId=${productId}`
+            body: 'productId=' + encodeURIComponent(productId)
         });
         const data = await response.json();
         alert(data.msg);
@@ -251,28 +251,24 @@ async function submitProduct() {
     }
 
     try {
-        const params = new URLSearchParams();
-        params.append('name', name);
-        params.append('price', price);
-        params.append('stock', stock);
-        params.append('description', description);
-        params.append('previewUrl', previewUrl);
+        let body = 'name=' + encodeURIComponent(name) +
+            '&price=' + encodeURIComponent(price) +
+            '&stock=' + encodeURIComponent(stock) +
+            '&description=' + encodeURIComponent(description) +
+            '&previewUrl=' + encodeURIComponent(previewUrl);
 
-        let url;
+        let url = `${API_BASE}/shopOwner/product`;
         if (productId) {
-            params.append('action', 'update');
-            params.append('productId', productId);
-            url = `${API_BASE}/shopOwner/product`;
+            body += '&action=update&productId=' + encodeURIComponent(productId);
         } else {
-            params.append('action', 'add');
-            url = `${API_BASE}/shopOwner/product`;
+            body += '&action=add';
         }
 
         const response = await fetch(url, {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: params.toString()
+            body: body
         });
         const data = await response.json();
         alert(data.msg);
@@ -293,7 +289,7 @@ async function removeProduct(productId, productName) {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=remove&productId=${productId}`
+            body: 'action=remove&productId=' + encodeURIComponent(productId)
         });
         const data = await response.json();
         alert(data.msg);

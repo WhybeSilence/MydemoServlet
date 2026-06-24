@@ -178,7 +178,7 @@ async function approveProduct(productId) {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=approve&productId=${productId}`
+            body: 'action=approve&productId=' + encodeURIComponent(productId)
         });
         const data = await response.json();
         alert(data.msg);
@@ -215,7 +215,7 @@ async function confirmReject() {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `action=reject&productId=${pendingProductId}&rejectReason=${encodeURIComponent(reason)}`
+            body: 'action=reject&productId=' + encodeURIComponent(pendingProductId) + '&rejectReason=' + encodeURIComponent(reason)
         });
         const data = await response.json();
         alert(data.msg);
