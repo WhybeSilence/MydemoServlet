@@ -34,10 +34,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const bgImages = [
-        "https://picsum.photos/id/1015/1920/1080",
-        "https://picsum.photos/id/1016/1920/1080",
-        "https://picsum.photos/id/1018/1920/1080",
-        "https://picsum.photos/id/1019/1920/1080"
+        "images/bg_field.png",
+        "images/bg_forest.png",
+        "images/bg_indoor.png",
+        "images/bg_school.png"
     ];
     const randomBg = bgImages[Math.floor(Math.random() * bgImages.length)];
     document.body.style.backgroundImage = `url(${randomBg})`;
