@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopDemo 系统全局流程图 - 演示版</title>
+<!-- Tailwind CSS (本地) -->
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<!-- Iconify 图标 -->
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<!-- Mermaid.js (用户指定) -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+        body {
+            background-color: #f8fafc;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        #mermaid-container {
+            flex: 1;
+            cursor: grab;
+            overflow: hidden;
+            position: relative;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        #mermaid-container:active {
+            cursor: grabbing;
+        }
+        #mermaid-content {
+            transform-origin: 0 0;
+            transition: transform 0.1s ease-out;
+            padding: 100px;
+            min-width: fit-content;
+        }
+        .controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 50;
+        }
+        .control-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            background: #f1f5f9;
+            color: #1e293b;
+            transform: scale(1.05);
+        }
+        /* Mermaid 样式微调 */
+        .node rect, .node circle, .node polygon, .node path {
+            stroke-width: 2px !important;
+        }
+    </style>
+</head>
+<body>
+<!-- 顶部导航 -->
+<header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center z-40 shadow-sm">
+<div class="flex items-center gap-3">
+<div class="bg-indigo-600 p-2 rounded-lg">
+<iconify-icon class="text-white text-2xl" icon="mdi:sitemap"></iconify-icon>
+</div>
+<div>
+<h1 class="text-xl font-bold text-slate-800">ShopDemo 系统全局流程图</h1>
+<p class="text-xs text-slate-500 uppercase tracking-widest font-medium">Global Architecture &amp; Workflow Visualization</p>
+</div>
+</div>
+<div class="flex items-center gap-4 text-sm">
+<div class="flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100">
+<span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+                认证与安全
+            </div>
+<div class="flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full border border-green-100">
+<span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                商品与浏览
+            </div>
+<div class="flex items-center gap-2 px-3 py-1 bg-orange-50 text-orange-700 rounded-full border border-orange-100">
+<span class="w-2 h-2 bg-orange-500 rounded-full"></span>
+                审核机制
+            </div>
+</div>
+</header>
+<!-- 流程图画布 -->
+<main id="mermaid-container">
+<div id="mermaid-content">
+<pre class="mermaid">
+flowchart TD
+    %% 样式定义
+    classDef blueBox fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#0D47A1;
+    classDef greenBox fill:#E8F5E9,stroke:#4CAF50,stroke-width:2px,color:#1B5E20;
+    classDef orangeBox fill:#FFF3E0,stroke:#FF9800,stroke-width:2px,color:#E65100;
+    classDef purpleBox fill:#F3E5F5,stroke:#9C27B0,stroke-width:2px,color:#4A148C;
+    classDef greyBox fill:#F5F5F5,stroke:#9E9E9E,stroke-width:2px,color:#212121;
+    classDef decision fill:#fff,stroke:#333,stroke-width:2px;
+
+    subgraph UserAuth [1. 用户认证与访问控制]
+        direction TB
+        R_Start(打开注册页) --&gt; R_Input[输入用户名密码]
+        R_Input --&gt; R_Valid{用户名合法?}
+        R_Valid -- 否 --&gt; R_Err[提示错误]
+        R_Valid -- 是 --&gt; R_Post[POST /register]
+        R_Post --&gt; R_Check{用户名存在?}
+        R_Check -- 存在 --&gt; R_409[返回 409]
+        R_Check -- 不存在 --&gt; R_Save[BCrypt加密并入库]
+        R_Save --&gt; R_200[注册成功 跳转登录]
+
+        L_Start(打开首页/登录页) --&gt; L_Input[提交 /login POST]
+        L_Input --&gt; L_Query[查询 sys_user 表]
+        L_Query --&gt; L_Exist{用户是否存在?}
+        L_Exist -- 否 --&gt; L_401[返回 401]
+        L_Exist -- 是 --&gt; L_Pass{密码匹配?}
+        L_Pass -- 否 --&gt; L_401
+        L_Pass -- 是 --&gt; L_Session[创建 Session/Cookie]
+        L_Session --&gt; L_Role{角色判断}
+        L_Role -- 管理员 --&gt; L_Admin[跳转 /admin]
+        L_Role -- 店主 --&gt; L_Shop[跳转 /shop_owner]
+        L_Role -- 用户 --&gt; L_Home[跳转 home.html]
+
+        F_Req(用户请求) --&gt; F_Path{路径检查}
+        F_Path -- 静态资源/白名单 --&gt; F_Pass[直接放行]
+        F_Path -- 其他路径 --&gt; F_Sess{Session有效?}
+        F_Sess -- 否 --&gt; F_Ajax{Ajax请求?}
+        F_Ajax -- 是 --&gt; F_JSON[返回 401 JSON]
+        F_Ajax -- 否 --&gt; F_Login[重定向登录页]
+        F_Sess -- 是 --&gt; F_Pass
+    end
+
+    subgraph ShopBrowse [2. 店铺浏览与商品展示]
+        direction TB
+        B_Home(访问 home.html) --&gt; B_List[GET /shopList]
+        B_List --&gt; B_DB[(SQL: shop JOIN sys_user)]
+        B_DB --&gt; B_Render[渲染店铺卡片]
+        B_Render --&gt; B_Click[点击店铺 跳转 shopDetail]
+        B_Click --&gt; B_Det[GET /shopDetail?shopId]
+        B_Det --&gt; B_CheckRole{是否店主本人?}
+        B_CheckRole -- 是 --&gt; B_All[显示全部商品 含待审核/拒绝]
+        B_CheckRole -- 否 --&gt; B_Audit[仅显示已审核 audit_status=1]
+    end
+
+    subgraph ProductAudit [3. 商品管理与审核机制]
+        direction TB
+        P_List(店主管理页) --&gt; P_Add[填写商品信息]
+        P_Add --&gt; P_Post[POST /product action=add]
+        P_Post --&gt; P_DB1[入库 audit_status=0]
+        P_DB1 --&gt; P_Msg1[发送审核通知消息]
+        
+        A_Start(管理员审核页) --&gt; A_Get[GET /admin/audit]
+        A_Get --&gt; A_Wait[展示待审核列表]
+        A_Wait --&gt; A_Op{审核操作}
+        A_Op -- 批准 --&gt; A_App[更新 status=1]
+        A_Op -- 拒绝 --&gt; A_Rej[更新 status=2 + 原因]
+        A_App --&gt; A_MsgP[写入成功消息]
+        A_Rej --&gt; A_MsgR[写入拒绝消息]
+    end
+
+    subgraph WishlistStock [4. 愿望单与库存变动]
+        direction TB
+        W_Add(点击加入愿望单) --&gt; W_Login{已登录?}
+        W_Login -- 否 --&gt; W_401[返回 401]
+        W_Login -- 是 --&gt; W_Stock{库存 &gt; 0?}
+        W_Stock -- 否 --&gt; W_Empty[返回 400 售罄]
+        W_Stock -- 是 --&gt; W_Exist{已在愿望单?}
+        W_Exist -- 是 --&gt; W_Dup[返回 400 重复]
+        W_Exist -- 否 --&gt; W_Insert[插入 wishlist 表]
+        W_Insert --&gt; W_Dec[商品库存 stock - 1]
+        
+        W_View(查看愿望单) --&gt; W_VList[GET /wishlist]
+        W_VList --&gt; W_Del[移除商品]
+        W_Del --&gt; W_DB_D[删除记录]
+        W_DB_D --&gt; W_Inc[商品库存 stock + 1]
+    end
+
+    subgraph Notifications [5. 系统消息通知]
+        direction TB
+        N_Trigger(系统事件触发) --&gt; N_Type{事件类型}
+        N_Type -- 审核通过 --&gt; N_P[店主消息: 已通过]
+        N_Type -- 审核拒绝 --&gt; N_R[店主消息: 已拒绝+原因]
+        N_Type -- 提交审核 --&gt; N_S[店主消息: 提交成功]
+        N_P &amp; N_R &amp; N_S --&gt; N_DB[(Insert system_message)]
+        
+        N_User(店主查看消息) --&gt; N_Fetch[GET /messages]
+        N_Fetch --&gt; N_List[按时间倒序展示]
+    end
+
+    subgraph DataFlow [6. 数据流向总览]
+        DF_UI[前端层: home/detail/admin] &lt;--&gt; DF_Srv[Servlet 控制器层]
+        DF_Srv &lt;--&gt; DF_Fil[Filter 过滤层]
+        DF_Fil &lt;--&gt; DF_Model[实体层: User/Shop/Prod/Wish/Msg]
+        DF_Model &lt;--&gt; DF_DB[(MySQL: shopdemo)]
+    end
+
+    %% 模块间连线
+    L_Home --&gt; B_Home
+    L_Shop --&gt; P_List
+    L_Admin --&gt; A_Start
+    B_Audit --&gt; W_Add
+    P_Msg1 &amp; A_MsgP &amp; A_MsgR -.-&gt; N_Trigger
+    W_Insert -.-&gt; DF_DB
+    
+    %% 应用样式
+    class UserAuth blueBox;
+    class ShopBrowse greenBox;
+    class ProductAudit orangeBox;
+    class WishlistStock purpleBox;
+    class Notifications greyBox;
+    class R_Valid,R_Check,L_Exist,L_Pass,L_Role,F_Path,F_Sess,F_Ajax,B_CheckRole,A_Op,W_Login,W_Stock,W_Exist,N_Type decision;
+            </pre>
+</div>
+</main>
+<!-- 控制按钮 -->
+<div class="controls">
+<button class="control-btn" onclick="zoom(1.1)" title="放大">
+<iconify-icon class="text-xl" icon="mdi:plus-circle-outline"></iconify-icon>
+</button>
+<button class="control-btn" onclick="zoom(0.9)" title="缩小">
+<iconify-icon class="text-xl" icon="mdi:minus-circle-outline"></iconify-icon>
+</button>
+<button class="control-btn" onclick="resetZoom()" title="还原">
+<iconify-icon class="text-xl" icon="mdi:auto-fix"></iconify-icon>
+</button>
+<button class="control-btn" onclick="toggleFullScreen()" title="全屏">
+<iconify-icon class="text-xl" icon="mdi:fullscreen"></iconify-icon>
+</button>
+</div>
+<!-- 底部状态栏 -->
+<footer class="bg-white border-t border-slate-200 px-6 py-2 text-xs text-slate-400 flex justify-between items-center z-40">
+<div>
+            技术栈: <span class="text-slate-600 font-mono">Mermaid.js v10 / Tailwind CSS / Servlet / MySQL</span>
+</div>
+<div class="flex gap-4 italic">
+<span>支持滚轮缩放与鼠标抓取平移</span>
+<span>© 2026 ShopDemo Architecture System</span>
+</div>
+</footer>
+<script>
+        // 初始化 Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'neutral',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            securityLevel: 'loose'
+        });
+
+        // 交互逻辑
+        const container = document.getElementById('mermaid-container');
+        const content = document.getElementById('mermaid-content');
+        
+        let scale = 0.75;
+        let posX = 0;
+        let posY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        // 初始化位置
+        window.addEventListener('load', () => {
+            resetZoom();
+        });
+
+        function updateTransform() {
+            content.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+        }
+
+        // 缩放逻辑
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            zoom(delta);
+        });
+
+        function zoom(factor) {
+            scale *= factor;
+            scale = Math.min(Math.max(0.1, scale), 3); // 限制缩放范围
+            updateTransform();
+        }
+
+        function resetZoom() {
+            scale = 0.6;
+            posX = (container.clientWidth - content.clientWidth * scale) / 2;
+            posY = 50;
+            updateTransform();
+        }
+
+        // 平移逻辑
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            posX = e.clientX - startX;
+            posY = e.clientY - startY;
+            updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        // 快捷键支持
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'r') resetZoom();
+            if (e.key === '+') zoom(1.1);
+            if (e.key === '-') zoom(0.9);
+        });
+    </script>
+</body>
+</html>
